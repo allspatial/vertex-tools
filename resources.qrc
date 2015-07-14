@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="vertex_tools" >
-        <file alias="icon.png">view/icons/icon.png</file>
-        <file alias="grid.png">view/icons/grid.png</file>
-        <file alias="vertex.png">view/icons/vertex.png</file>
-    </qresource>
-</RCC>

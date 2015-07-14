@@ -21,11 +21,13 @@
  ***************************************************************************/
 """
 
-from PyQt4.QtCore import QTranslator, qVersion, QCoreApplication
-from PyQt4.QtGui import QAction, QIcon
-import resources_rc
 import os.path
+
+from PyQt4.QtCore import QTranslator, qVersion, QCoreApplication, QObject, SIGNAL
+from PyQt4.QtGui import QAction
+from view.resources_rc import *
 from controller.SelectFeatureMapTool import *
+from controller.SnapToGridDialog import *
 
 
 class VertexToolsPlugin:
@@ -68,7 +70,7 @@ class VertexToolsPlugin:
         self.toolbar.setObjectName('Vertex Tools')
 
         self.snap_to_grid = QAction(self.getIcon("grid.png"), self.tr("Snap to Grid"), self.iface.mainWindow())
-        self.edit_vertices = QAction(self.getIcon("vertex.png"), self.tr("Edit Vertices"), self.iface.mainWindow())
+        self.edit_vertices = QAction(self.getIcon("vertex.png"), self.tr("View / Edit Vertices"), self.iface.mainWindow())
         self.edit_vertices.setCheckable(True)
         self.map_tool = SelectFeatureMapTool(self)
         self.map_tool.setAction(self.edit_vertices)
@@ -77,6 +79,9 @@ class VertexToolsPlugin:
         self.iface.addPluginToVectorMenu(self.tr('Vertex Tools'), self.edit_vertices)
         self.toolbar.addActions([self.snap_to_grid, self.edit_vertices])
         self.actions.append(self.snap_to_grid)
+        self.actions.append(self.edit_vertices)
+
+        QObject.connect(self.snap_to_grid, SIGNAL("triggered()"), self.__snap_to_grid)
 
     def unload(self):
 
@@ -85,3 +90,8 @@ class VertexToolsPlugin:
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar
+
+    def __snap_to_grid(self):
+
+        dialog = SnapToGridDialog(self, self.iface.mainWindow())
+        dialog.exec_()

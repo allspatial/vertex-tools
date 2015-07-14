@@ -25,6 +25,10 @@
   <property name="windowTitle">
    <string>Snap to Grid</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/vertex_tools/grid.png</normaloff>:/vertex_tools/grid.png</iconset>
+  </property>
   <widget class="QListWidget" name="availableLayersLWidget">
    <property name="geometry">
     <rect>
@@ -259,7 +263,9 @@
   <tabstop>snapButton</tabstop>
   <tabstop>closeButton</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="../resources.qrc"/>
+ </resources>
  <connections/>
  <buttongroups>
   <buttongroup name="buttonGroup"/>
