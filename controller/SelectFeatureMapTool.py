@@ -1,6 +1,6 @@
 from qgis.core import QgsFeatureRequest, QgsRectangle, QGis
 from qgis.gui import QgsRubberBand, QgsMapTool
-from PyQt4.QtCore import QSettings
+from PyQt4.QtCore import QSettings, SIGNAL
 from PyQt4.QtGui import QColor
 
 
