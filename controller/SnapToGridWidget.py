@@ -1,7 +1,7 @@
 __author__ = 'mwagner'
 
 from ..view.Ui_SnapToGridWidget import Ui_SnapToGridWidget
-from qgis.core import QgsMapLayerRegistry, QgsMapLayer, QgsMessageLog
+from qgis.core import QgsMapLayerRegistry, QgsMapLayer, QgsVectorDataProvider
 from PyQt4.Qt import Qt, pyqtSlot, QReadWriteLock, QReadLocker
 from PyQt4.QtGui import QDockWidget, QListWidgetItem, QMessageBox
 from ..model.VertexToolsError import *
@@ -19,6 +19,7 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
 
         self.layer_count = 0
         self.threads = dict()
+        self.layers = dict()
         self.lock = QReadWriteLock()
 
     @pyqtSlot()
@@ -26,7 +27,8 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
 
         layers = self.plugin.iface.legendInterface().selectedLayers()
         for layer in layers:
-            if layer.type() == QgsMapLayer.VectorLayer and not layer.isReadOnly():
+            caps = layer.dataProvider().capabilities()
+            if layer.type() == QgsMapLayer.VectorLayer and not layer.isReadOnly() and caps & QgsVectorDataProvider.ChangeGeometries:
                 layer_id = layer.id()
                 if self.__layer_in_list(layer_id):
                     continue
@@ -34,12 +36,15 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
                 item = QListWidgetItem(name)
                 item.setData(Qt.UserRole, layer_id)
                 self.snapLayersLWidget.addItem(item)
+                self.layers[layer_id] = layer
 
     @pyqtSlot()
     def on_removeLayerButton_clicked(self):
 
         for item in self.snapLayersLWidget.selectedItems():
             item = self.snapLayersLWidget.takeItem(self.snapLayersLWidget.row(item))
+            layer_id = item.data(Qt.UserRole)
+            del self.layers[layer_id]
             del item
 
     @pyqtSlot()
@@ -49,16 +54,24 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
             item = self.snapLayersLWidget.takeItem(0)
             del item
 
+        self.layers.clear()
+
     @pyqtSlot()
     def on_snapButton_clicked(self):
 
+        grid_size = self.gridSizeSBox.value()
         self.layer_count = 0
         self.threads = dict()
+
+        QgsMessageLog.logMessage('Ideal Thread Count: {0}'.format(QThread.idealThreadCount()), 'Vertex Tools', QgsMessageLog.WARNING)
+
         for row in range(0, self.snapLayersLWidget.count()):
+
             layer_id = self.snapLayersLWidget.item(row).data(Qt.UserRole)
-            thread = SnapToGrid(layer_id)
-            thread.finished.connect(self.finished)
-            thread.progressed.connect(self.progressed)
+            snap_extent = self.__snap_extent(layer_id)
+            thread = SnapToGrid(layer_id, snap_extent, grid_size, self.plugin.iface.mainWindow())
+            thread.run_finished.connect(self.finished)
+            thread.run_progressed.connect(self.progressed)
             self.threads[layer_id] = thread
             self.layer_count += 1
             thread.start()
@@ -83,12 +96,16 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
 
         if self.layer_count == 0:
             if completed:
-                QMessageBox.information(self, "Snapping", "Snapping completed")
+                if self.plugin.iface.mapCanvas().isCachingEnabled():
+                    self.layers[layer_id].setCacheImage(None)
+                else:
+                    self.plugin.iface.mapCanvas().refresh()
+                QMessageBox.information(self, self.tr("Snapping"), self.tr("Snapping completed."))
             else:
-                QMessageBox.information(self, "Snapping", "Snapping cancelled")
+                QMessageBox.information(self, self.tr("Snapping"), self.tr("Snapping cancelled."))
 
-    @pyqtSlot(str, int)
-    def progressed(self, layer_id, progress_val):
+    @pyqtSlot(str, int, int)
+    def progressed(self, layer_id, progress_val, total_val):
 
         for row in range(0, self.snapLayersLWidget.count()):
             layer_id2 = self.snapLayersLWidget.item(row).data(Qt.UserRole)
@@ -98,7 +115,7 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
 
         text = item.text()
         idx = text.find('[')
-        progress_rate = (float(progress_val)*100)/5000000
+        progress_rate = (float(progress_val)*100) / total_val
         if idx != -1:
             text = text[0:idx-1]
         item.setText(text + ' [{0:6.2f} %]'.format(progress_rate))
@@ -111,3 +128,11 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
                 return True
 
         return False
+
+    def __snap_extent(self, layer_id):
+
+        if self.mapExtentRButton.isChecked():
+            return self.plugin.map_canvas.extent()
+        else:
+            layer = QgsMapLayerRegistry.instance().mapLayer(layer_id)
+            return layer.extent()

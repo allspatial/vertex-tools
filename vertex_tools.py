@@ -34,7 +34,7 @@ class VertexToolsPlugin:
     def __init__(self, iface):
 
         self.iface = iface
-        self.mapCanvas = self.iface.mapCanvas()
+        self.map_canvas = self.iface.mapCanvas()
 
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)

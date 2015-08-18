@@ -8,7 +8,7 @@ class SelectFeatureMapTool(QgsMapTool):
 
     def __init__(self, plugin):
 
-        QgsMapTool.__init__(self, plugin.mapCanvas)
+        QgsMapTool.__init__(self, plugin.map_canvas)
 
         self.plugin = plugin
         self.doubleclick = False
@@ -20,7 +20,7 @@ class SelectFeatureMapTool(QgsMapTool):
         qgsLineGreen = settings.value("/qgis/digitizing/line_color_green", 0, type=int)
         qgsLineBlue = settings.value("/qgis/digitizing/line_color_blue", 0, type=int)
 
-        self.rubBandPol = QgsRubberBand(plugin.mapCanvas, QGis.Line)
+        self.rubBandPol = QgsRubberBand(plugin.map_canvas, QGis.Line)
         self.rubBandPol.setColor(QColor(qgsLineRed, qgsLineGreen, qgsLineBlue))
         self.rubBandPol.setWidth(qgsLineWidth)
 
