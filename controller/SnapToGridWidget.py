@@ -61,7 +61,7 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
         if self.snapLayersLWidget.count() == 0:
             return
 
-        if QMessageBox.question(None, "Snap To Grid", "Snapping to grid might change the geometries significantly depending on the grid size set. Do you want to continue?", QMessageBox.Yes|QMessageBox.No) == QMessageBox.No:
+        if QMessageBox.question(None, self.tr('Snap To Grid'), self.tr('Snapping to grid might change the geometries significantly depending on the grid size set. Do you want to continue?'), QMessageBox.Yes|QMessageBox.No) == QMessageBox.No:
             return
 
         self.snapButton.setEnabled(False)
@@ -72,7 +72,7 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
         self.layer_count = 0
         self.threads.clear()
 
-        QgsMessageLog.logMessage('Ideal Thread Count: {0}'.format(QThread.idealThreadCount()-1), 'Vertex Tools', QgsMessageLog.INFO)
+        QgsMessageLog.logMessage(self.tr('Ideal Thread Count: {0}').format(QThread.idealThreadCount()-1), self.tr('Vertex Tools'), QgsMessageLog.INFO)
 
         for row in range(0, self.snapLayersLWidget.count()):
 
