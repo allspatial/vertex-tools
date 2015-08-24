@@ -1,0 +1,4 @@
++Better thread management (thread pool, take into account the ideal number of threads, etc.)
++Block layers in the TOC for editing during SnapToGrid
++Provide option to backup and restore the original geometry
++Create user manual

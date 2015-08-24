@@ -1,7 +1,7 @@
 __author__ = 'mwagner'
 
-from qgis.core import QgsVectorLayer, QgsGeometry, QgsFeature, QgsMapLayerRegistry, QgsPoint, QgsSnapper, QgsSpatialIndex, QgsFeatureRequest, QgsMessageLog, QGis
-from PyQt4.Qt import QThread, pyqtSignal, QMutex, QMutexLocker, QReadWriteLock, QReadLocker
+from qgis.core import QgsVectorLayer, QgsGeometry, QgsFeature, QgsMapLayerRegistry, QgsPoint, QgsFeatureRequest, QgsMessageLog, QGis
+from PyQt4.Qt import QThread, pyqtSignal, QMutex, QMutexLocker
 
 
 class SnapToGrid(QThread):
@@ -9,9 +9,10 @@ class SnapToGrid(QThread):
     run_finished = pyqtSignal(str, bool)
     run_progressed = pyqtSignal(str, int, int)
 
-    def __init__(self, layer_id, snap_extent, grid_size, parent=None):
+    def __init__(self, plugin, layer_id, snap_extent, grid_size, parent=None):
 
         super(SnapToGrid, self).__init__(parent)
+        self.plugin = plugin
         self.layer_id = layer_id
         self.snap_extent = snap_extent
         self.grid_size = grid_size
@@ -30,24 +31,13 @@ class SnapToGrid(QThread):
         with QMutexLocker(self.mutex):
             self.stopped = True
 
-    def snap2(self):
-
-        limit = 5000000
-        for x in range(0, limit):
-            with QMutexLocker(self.mutex):
-                if self.stopped:
-                    return
-
-            if x % 500 == 0:
-                self.run_progressed.emit(self.layer_id, x, limit)
-
-        self.completed = True
-
     def snap(self):
 
         orig_layer = QgsMapLayerRegistry.instance().mapLayer(self.layer_id)
+        # create a copy of the layer just for editing
         layer = QgsVectorLayer(orig_layer.source(), orig_layer.name(), orig_layer.providerType())
         geom_type = layer.geometryType()
+        # layer.wkbType() does not return reliable results
         wkb_type = layer.wkbType()
 
         layer.startEditing()
@@ -56,46 +46,97 @@ class SnapToGrid(QThread):
         for feature in layer.getFeatures(request):
             total_features += 1
 
-        QgsMessageLog.logMessage('Total features: {0}'.format(total_features), 'Vertex Tools', QgsMessageLog.WARNING)
+        QgsMessageLog.logMessage(self.plugin.tr('Features to be snapped in layer <{0}>: {1}').
+                                 format(orig_layer.name(), total_features), self.plugin.tr('Vertex Tools'),
+                                 QgsMessageLog.INFO)
 
         count = 0
         for feature in layer.getFeatures(request):
             with QMutexLocker(self.mutex):
                 if self.stopped:
-                    layer.rollback()
+                    layer.rollBack()
                     return
 
             if geom_type == QGis.Point:
-                self.__point_grid(layer, feature, wkb_type)
+                snapped_geom = self.__point_grid(feature, wkb_type)
+            elif geom_type == QGis.Line:
+                snapped_geom = self.__line_grid(feature, wkb_type)
+            elif geom_type == QGis.Polygon:
+                snapped_geom = self.__polygon_grid(feature, wkb_type)
 
+            layer.changeGeometry(feature.id(), snapped_geom)
+
+            # reduces memory usage but allows for partial rollbacks only
             if count % 500 == 0:
                 layer.commitChanges()
                 layer.startEditing()
 
             count += 1
-
             self.run_progressed.emit(self.layer_id, count, total_features)
 
         layer.commitChanges()
 
         self.completed = True
 
-    def __point_grid(self, layer, feature, wkb_type):
+    def __point_grid(self, feature, wkb_type):
 
-        points = list()
-        if wkb_type == QGis.WKBMultiPoint or wkb_type == QGis.WKBMultiPoint25D:
-            pass
+        if feature.geometry().isMultipart():
+            points = feature.geometry().asMultiPoint()
         else:
+            points = list()
             points.append(feature.geometry().asPoint())
 
         snapped_points = self.__points_to_grid(points)
 
-        if wkb_type == QGis.WKBMultiPoint or wkb_type == QGis.WKBMultiPoint25D:
-            pass
+        if feature.geometry().isMultipart():
+            geom = QgsGeometry.fromMultiPoint(snapped_points)
         else:
             geom = QgsGeometry.fromPoint(snapped_points[0])
 
-        layer.dataProvider().changeGeometryValues({feature.id(): geom})
+        return geom
+
+    def __line_grid(self, feature, wkb_type):
+
+        if feature.geometry().isMultipart():
+            polylines = feature.geometry().asMultiPolyline()
+            cleaned_polylines = list()
+            for polyline in polylines:
+                snapped_points = self.__points_to_grid(polyline)
+                if len(snapped_points) < 2:
+                    continue
+                cleaned_polyline = snapped_points
+                cleaned_polylines.append(cleaned_polyline)
+            geom = QgsGeometry.fromMultiPolyline([x for x in cleaned_polylines])
+        else:
+            points = feature.geometry().asPolyline()
+            snapped_points = self.__points_to_grid(points)
+            geom = QgsGeometry.fromPolyline(snapped_points)
+
+        return geom
+
+    def __polygon_grid(self, feature, wkb_type):
+
+        if feature.geometry().isMultipart():
+            polygons = feature.geometry().asMultiPolygon()
+            cleaned_polygons = list()
+            for polygon in polygons:
+                cleaned_polylines = list()
+                for polyline in polygon:
+                    snapped_points = self.__points_to_grid(polyline)
+                    cleaned_polyline = snapped_points
+                    cleaned_polylines.append(cleaned_polyline)
+                cleaned_polygons.append(cleaned_polylines)
+            geom = QgsGeometry.fromMultiPolygon([x for x in cleaned_polygons])
+        else:
+            polygon = feature.geometry().asPolygon()
+            cleaned_polylines = list()
+            for polyline in polygon:
+                snapped_points = self.__points_to_grid(polyline)
+                cleaned_polyline = snapped_points
+                cleaned_polylines.append(cleaned_polyline)
+            geom = QgsGeometry.fromPolyline(x for x in cleaned_polylines)
+
+        return geom
 
     def __points_to_grid(self, points, remove_duplicates=True):
 

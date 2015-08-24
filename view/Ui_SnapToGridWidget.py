@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'SnapToGridWidget.ui'
 #
-# Created: Wed Aug 12 12:20:54 2015
+# Created: Mon Aug 24 09:39:46 2015
 #      by: PyQt4 UI code generator 4.11.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,24 +41,24 @@ class Ui_SnapToGridWidget(object):
         self.groupBox_2.setGeometry(QtCore.QRect(20, 325, 251, 166))
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
         self.layerRButton = QtGui.QRadioButton(self.groupBox_2)
-        self.layerRButton.setGeometry(QtCore.QRect(30, 75, 126, 20))
+        self.layerRButton.setGeometry(QtCore.QRect(10, 75, 126, 20))
         self.layerRButton.setObjectName(_fromUtf8("layerRButton"))
         self.mapExtentRButton = QtGui.QRadioButton(self.groupBox_2)
-        self.mapExtentRButton.setGeometry(QtCore.QRect(30, 50, 166, 20))
+        self.mapExtentRButton.setGeometry(QtCore.QRect(10, 50, 231, 20))
         self.mapExtentRButton.setChecked(True)
         self.mapExtentRButton.setObjectName(_fromUtf8("mapExtentRButton"))
         self.label_6 = QtGui.QLabel(self.groupBox_2)
-        self.label_6.setGeometry(QtCore.QRect(35, 105, 121, 16))
+        self.label_6.setGeometry(QtCore.QRect(15, 105, 121, 16))
         self.label_6.setObjectName(_fromUtf8("label_6"))
         self.gridSizeSBox = QtGui.QDoubleSpinBox(self.groupBox_2)
-        self.gridSizeSBox.setGeometry(QtCore.QRect(35, 125, 121, 24))
+        self.gridSizeSBox.setGeometry(QtCore.QRect(15, 125, 121, 24))
         self.gridSizeSBox.setDecimals(3)
         self.gridSizeSBox.setMinimum(0.001)
-        self.gridSizeSBox.setMaximum(5.0)
+        self.gridSizeSBox.setMaximum(20.0)
         self.gridSizeSBox.setSingleStep(0.01)
         self.gridSizeSBox.setObjectName(_fromUtf8("gridSizeSBox"))
         self.label_7 = QtGui.QLabel(self.groupBox_2)
-        self.label_7.setGeometry(QtCore.QRect(30, 30, 126, 16))
+        self.label_7.setGeometry(QtCore.QRect(10, 30, 126, 16))
         self.label_7.setObjectName(_fromUtf8("label_7"))
         self.snapButton = QtGui.QPushButton(self.dockWidgetContents)
         self.snapButton.setGeometry(QtCore.QRect(30, 505, 115, 32))
@@ -93,7 +93,7 @@ class Ui_SnapToGridWidget(object):
         self.label_5.setText(_translate("SnapToGridWidget", "Layers To Be Snapped", None))
         self.groupBox_2.setTitle(_translate("SnapToGridWidget", "Snap Settings", None))
         self.layerRButton.setText(_translate("SnapToGridWidget", "Layer Extent", None))
-        self.mapExtentRButton.setText(_translate("SnapToGridWidget", "Current Map View", None))
+        self.mapExtentRButton.setText(_translate("SnapToGridWidget", "Current Map View (Intersecting)", None))
         self.label_6.setText(_translate("SnapToGridWidget", "Grid Size [m]", None))
         self.label_7.setText(_translate("SnapToGridWidget", "Snap Extent:", None))
         self.snapButton.setText(_translate("SnapToGridWidget", "Snap", None))

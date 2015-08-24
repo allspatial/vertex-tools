@@ -16,7 +16,6 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
 
         self.setupUi(self)
         self.plugin = plugin
-
         self.layer_count = 0
         self.threads = dict()
         self.layers = dict()
@@ -59,17 +58,27 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
     @pyqtSlot()
     def on_snapButton_clicked(self):
 
+        if self.snapLayersLWidget.count() == 0:
+            return
+
+        if QMessageBox.question(None, "Snap To Grid", "Snapping to grid might change the geometries significantly depending on the grid size set. Do you want to continue?", QMessageBox.Yes|QMessageBox.No) == QMessageBox.No:
+            return
+
+        self.snapButton.setEnabled(False)
+        self.removeLayerButton.setEnabled(False)
+        self.removeAllLayersButton.setEnabled(False)
+
         grid_size = self.gridSizeSBox.value()
         self.layer_count = 0
-        self.threads = dict()
+        self.threads.clear()
 
-        QgsMessageLog.logMessage('Ideal Thread Count: {0}'.format(QThread.idealThreadCount()), 'Vertex Tools', QgsMessageLog.WARNING)
+        QgsMessageLog.logMessage('Ideal Thread Count: {0}'.format(QThread.idealThreadCount()-1), 'Vertex Tools', QgsMessageLog.INFO)
 
         for row in range(0, self.snapLayersLWidget.count()):
 
             layer_id = self.snapLayersLWidget.item(row).data(Qt.UserRole)
             snap_extent = self.__snap_extent(layer_id)
-            thread = SnapToGrid(layer_id, snap_extent, grid_size, self.plugin.iface.mainWindow())
+            thread = SnapToGrid(self.plugin, layer_id, snap_extent, grid_size, self.plugin.iface.mainWindow())
             thread.run_finished.connect(self.finished)
             thread.run_progressed.connect(self.progressed)
             self.threads[layer_id] = thread
@@ -103,6 +112,10 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
                 QMessageBox.information(self, self.tr("Snapping"), self.tr("Snapping completed."))
             else:
                 QMessageBox.information(self, self.tr("Snapping"), self.tr("Snapping cancelled."))
+
+            self.snapButton.setEnabled(True)
+            self.removeLayerButton.setEnabled(True)
+            self.removeAllLayersButton.setEnabled(True)
 
     @pyqtSlot(str, int, int)
     def progressed(self, layer_id, progress_val, total_val):
