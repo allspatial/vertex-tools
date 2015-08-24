@@ -28,7 +28,7 @@ homepage=http://www.gc-i.de
 tracker=https://github.com/allspatial/vertex-tools
 repository=https://github.com/allspatial/vertex-tools
 category=Vector
-icon=view/icons/icon.png
+icon=view/icons/grid.png
 # experimental flag
 experimental=False
 
