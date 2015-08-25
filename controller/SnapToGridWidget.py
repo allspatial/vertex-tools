@@ -17,9 +17,11 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
         self.setupUi(self)
         self.plugin = plugin
         self.layer_count = 0
+        self.remaining_layer_count = 0
         self.threads = dict()
         self.layers = dict()
         self.lock = QReadWriteLock()
+        self.ideal_thread_count = QThread.idealThreadCount()-1
 
     @pyqtSlot()
     def on_addLayersButton_clicked(self):
@@ -67,23 +69,33 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
         self.snapButton.setEnabled(False)
         self.removeLayerButton.setEnabled(False)
         self.removeAllLayersButton.setEnabled(False)
+        self.addLayersButton.setEnabled(False)
 
-        grid_size = self.gridSizeSBox.value()
         self.layer_count = 0
+        self.remaining_layer_count = 0
         self.threads.clear()
 
-        QgsMessageLog.logMessage(self.tr('Ideal Thread Count: {0}').format(QThread.idealThreadCount()-1), self.tr('Vertex Tools'), QgsMessageLog.INFO)
+        QgsMessageLog.logMessage(self.tr('Ideal Thread Count: {0}').format(self.ideal_thread_count), self.tr('Vertex Tools'), QgsMessageLog.INFO)
 
         for row in range(0, self.snapLayersLWidget.count()):
 
-            layer_id = self.snapLayersLWidget.item(row).data(Qt.UserRole)
-            snap_extent = self.__snap_extent(layer_id)
-            thread = SnapToGrid(self.plugin, layer_id, snap_extent, grid_size, self.plugin.iface.mainWindow())
-            thread.run_finished.connect(self.finished)
-            thread.run_progressed.connect(self.progressed)
-            self.threads[layer_id] = thread
+            self.__create_thread(row)
+            if self.layer_count >= self.ideal_thread_count:
+                self.remaining_layer_count = self.snapLayersLWidget.count() - self.layer_count
+                break
+
+    def __create_thread(self, row):
+
+        grid_size = self.gridSizeSBox.value()
+        layer_id = self.snapLayersLWidget.item(row).data(Qt.UserRole)
+        snap_extent = self.__snap_extent(layer_id)
+        thread = SnapToGrid(self.plugin, layer_id, snap_extent, grid_size, self.plugin.iface.mainWindow())
+        thread.run_finished.connect(self.finished)
+        thread.run_progressed.connect(self.progressed)
+        self.threads[layer_id] = thread
+        with QReadLocker(self.lock):
             self.layer_count += 1
-            thread.start()
+        thread.start()
 
     @pyqtSlot()
     def on_cancelButton_clicked(self):
@@ -103,6 +115,11 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
         thread = self.threads[layer_id]
         thread.wait()
 
+        if self.remaining_layer_count > 0:
+            self.__create_thread(self.snapLayersLWidget.count()-self.remaining_layer_count)
+            with QReadLocker(self.lock):
+                self.remaining_layer_count -= 1
+
         if self.layer_count == 0:
             if completed:
                 if self.plugin.iface.mapCanvas().isCachingEnabled():
@@ -116,6 +133,7 @@ class SnapToGridWidget(QDockWidget, Ui_SnapToGridWidget):
             self.snapButton.setEnabled(True)
             self.removeLayerButton.setEnabled(True)
             self.removeAllLayersButton.setEnabled(True)
+            self.addLayersButton.setEnabled(True)
 
     @pyqtSlot(str, int, int)
     def progressed(self, layer_id, progress_val, total_val):
