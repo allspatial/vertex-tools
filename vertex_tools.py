@@ -60,7 +60,7 @@ class VertexToolsPlugin:
 
         return QCoreApplication.translate('VertexToolsPlugin', message)
 
-    def getIcon(self, iconName):
+    def get_icon(self, iconName):
 
         return QIcon(":vertex_tools/" + iconName)
 
@@ -69,11 +69,11 @@ class VertexToolsPlugin:
         self.toolbar = self.iface.addToolBar(self.tr('Vertex Tools'))
         self.toolbar.setObjectName('Vertex Tools')
 
-        self.edit_vertices = QAction(self.getIcon("vertex.png"), self.tr("View / Edit Vertices"), self.iface.mainWindow())
+        self.edit_vertices = QAction(self.get_icon("vertex.png"), self.tr("View / Edit Vertices"), self.iface.mainWindow())
         self.edit_vertices.setCheckable(True)
         self.map_tool = SelectFeatureMapTool(self)
         self.map_tool.setAction(self.edit_vertices)
-        self.show_snap_widget = QAction(self.getIcon("grid.png"), self.tr("Show/Hide Widget"), self.iface.mainWindow())
+        self.show_snap_widget = QAction(self.get_icon("grid.png"), self.tr("Show/Hide Widget"), self.iface.mainWindow())
         self.show_snap_widget.setCheckable(True)
 
         self.iface.addPluginToVectorMenu(self.tr('Vertex Tools'), self.show_snap_widget)

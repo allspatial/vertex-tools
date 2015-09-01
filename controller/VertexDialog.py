@@ -16,5 +16,5 @@ class VertexDialog(QDialog, Ui_VertexDialog):
         self.plugin = plugin
         self.setupUi(self)
 
-        self.helpButton.setIcon(self.plugin.getIcon("help.gif"))
+        self.helpButton.setIcon(self.plugin.get_icon("help.gif"))
         self.setWindowIcon(QIcon(":beninCad/info.png"))

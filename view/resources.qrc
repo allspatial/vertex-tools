@@ -2,5 +2,6 @@
     <qresource prefix="vertex_tools" >
         <file alias="grid.png">icons/grid.png</file>
         <file alias="vertex.png">icons/vertex.png</file>
+        <file alias="folder.png">icons/folder.png</file>
     </qresource>
 </RCC>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>288</width>
-    <height>561</height>
+    <width>293</width>
+    <height>797</height>
    </rect>
   </property>
   <property name="allowedAreas">
@@ -17,199 +17,350 @@
    <string>Snap To Grid</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <widget class="QListWidget" name="snapLayersLWidget">
+   <widget class="QScrollArea" name="scrollArea">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>70</y>
-      <width>251</width>
-      <height>201</height>
+      <x>4</x>
+      <y>4</y>
+      <width>281</width>
+      <height>761</height>
      </rect>
     </property>
-    <property name="selectionMode">
-     <enum>QAbstractItemView::MultiSelection</enum>
+    <property name="widgetResizable">
+     <bool>false</bool>
     </property>
-   </widget>
-   <widget class="QLabel" name="label_5">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>50</y>
-      <width>206</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Layers To Be Snapped</string>
-    </property>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_2">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>325</y>
-      <width>251</width>
-      <height>166</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Snap Settings</string>
-    </property>
-    <widget class="QRadioButton" name="layerRButton">
+    <widget class="QWidget" name="scrollAreaWidgetContents">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>75</y>
-       <width>126</width>
-       <height>20</height>
+       <x>0</x>
+       <y>0</y>
+       <width>279</width>
+       <height>759</height>
       </rect>
      </property>
-     <property name="text">
-      <string>Layer Extent</string>
-     </property>
+     <widget class="Line" name="line">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>625</y>
+        <width>251</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="add_layers_button">
+      <property name="geometry">
+       <rect>
+        <x>5</x>
+        <y>5</y>
+        <width>261</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Add Selected TOC Layers</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cancel_snap_button">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>585</y>
+        <width>115</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Cancel</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="create_backup_gbox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>485</y>
+        <width>251</width>
+        <height>96</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Create Backup (Geometries only)</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
+      </property>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>126</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Backup Folder</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="backup_folder_edit">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>191</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="backup_folder_button">
+       <property name="geometry">
+        <rect>
+         <x>210</x>
+         <y>47</y>
+         <width>28</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QListWidget" name="snap_layers_lwidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>65</y>
+        <width>251</width>
+        <height>201</height>
+       </rect>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::MultiSelection</enum>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="remove_layer_button">
+      <property name="geometry">
+       <rect>
+        <x>5</x>
+        <y>270</y>
+        <width>131</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove Selected</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="remove_all_layers_button">
+      <property name="geometry">
+       <rect>
+        <x>135</x>
+        <y>270</y>
+        <width>131</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Remove All</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>45</y>
+        <width>206</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Layers To Be Snapped</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="snap_settings_gbox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>315</y>
+        <width>251</width>
+        <height>166</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Snap Settings</string>
+      </property>
+      <widget class="QRadioButton" name="layer_rbutton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>126</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Layer Extent</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="map_extent_rbutton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>75</y>
+         <width>231</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Current Map View (Intersecting)</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_6">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>105</y>
+         <width>191</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Grid Size [0.001m - 10m]</string>
+       </property>
+      </widget>
+      <widget class="QDoubleSpinBox" name="grid_size_sbox">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>125</y>
+         <width>121</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>0.001000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>10.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_7">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>126</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Snap Extent:</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="restore_geom_gbox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>645</y>
+        <width>251</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Restore Geometries (from Backup)</string>
+      </property>
+      <widget class="QPushButton" name="restore_button">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>106</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Restore</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="cancel_restore_button">
+       <property name="geometry">
+        <rect>
+         <x>125</x>
+         <y>30</y>
+         <width>115</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cancel</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>60</y>
+         <width>166</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; color:#666666;&quot;&gt;For layers selected above.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QPushButton" name="snap_button">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>585</y>
+        <width>115</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Snap</string>
+      </property>
+     </widget>
     </widget>
-    <widget class="QRadioButton" name="mapExtentRButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>50</y>
-       <width>231</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Current Map View (Intersecting)</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_6">
-     <property name="geometry">
-      <rect>
-       <x>15</x>
-       <y>105</y>
-       <width>121</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Grid Size [m]</string>
-     </property>
-    </widget>
-    <widget class="QDoubleSpinBox" name="gridSizeSBox">
-     <property name="geometry">
-      <rect>
-       <x>15</x>
-       <y>125</y>
-       <width>121</width>
-       <height>24</height>
-      </rect>
-     </property>
-     <property name="decimals">
-      <number>3</number>
-     </property>
-     <property name="minimum">
-      <double>0.001000000000000</double>
-     </property>
-     <property name="maximum">
-      <double>20.000000000000000</double>
-     </property>
-     <property name="singleStep">
-      <double>0.010000000000000</double>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_7">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>126</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Snap Extent:</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QPushButton" name="snapButton">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>505</y>
-      <width>115</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Snap</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="cancelButton">
-    <property name="geometry">
-     <rect>
-      <x>150</x>
-      <y>505</y>
-      <width>115</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Cancel</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="removeLayerButton">
-    <property name="geometry">
-     <rect>
-      <x>15</x>
-      <y>275</y>
-      <width>131</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Remove Selected</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="removeAllLayersButton">
-    <property name="geometry">
-     <rect>
-      <x>145</x>
-      <y>275</y>
-      <width>131</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Remove All</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="addLayersButton">
-    <property name="geometry">
-     <rect>
-      <x>15</x>
-      <y>10</y>
-      <width>261</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Add Selected TOC Layers</string>
-    </property>
    </widget>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>addLayersButton</tabstop>
-  <tabstop>snapLayersLWidget</tabstop>
-  <tabstop>removeLayerButton</tabstop>
-  <tabstop>removeAllLayersButton</tabstop>
-  <tabstop>mapExtentRButton</tabstop>
-  <tabstop>layerRButton</tabstop>
-  <tabstop>gridSizeSBox</tabstop>
-  <tabstop>snapButton</tabstop>
-  <tabstop>cancelButton</tabstop>
+  <tabstop>add_layers_button</tabstop>
+  <tabstop>snap_layers_lwidget</tabstop>
+  <tabstop>remove_layer_button</tabstop>
+  <tabstop>remove_all_layers_button</tabstop>
+  <tabstop>map_extent_rbutton</tabstop>
+  <tabstop>layer_rbutton</tabstop>
+  <tabstop>grid_size_sbox</tabstop>
+  <tabstop>create_backup_gbox</tabstop>
+  <tabstop>backup_folder_edit</tabstop>
+  <tabstop>backup_folder_button</tabstop>
+  <tabstop>snap_button</tabstop>
+  <tabstop>cancel_snap_button</tabstop>
+  <tabstop>restore_button</tabstop>
+  <tabstop>cancel_restore_button</tabstop>
  </tabstops>
  <resources/>
  <connections/>

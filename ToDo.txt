@@ -1,6 +1,5 @@
-+Better thread management (thread pool, take into account the ideal number of threads, etc.)
-+Block layers in the TOC for editing during SnapToGrid
-+Provide option to backup and restore the original geometry
 +Add dialog for viewing and editing coordinates
 +Review icons
 +Create user manual
++Reflect case when layers are removed from the TOC => should be removed from the Snapping Widget and thread should be cancelled.
++Make DockWidget scrollable

@@ -1,28 +1,40 @@
 __author__ = 'mwagner'
 
-from qgis.core import QgsVectorLayer, QgsGeometry, QgsFeature, QgsMapLayerRegistry, QgsPoint, QgsFeatureRequest, QgsMessageLog, QGis
-from PyQt4.Qt import QThread, pyqtSignal, QMutex, QMutexLocker
+from qgis.core import QgsVectorLayer, QgsGeometry, QgsMapLayerRegistry, QgsPoint, QgsFeatureRequest,\
+    QgsMessageLog, QGis, QgsVectorFileWriter
+from PyQt4.Qt import QThread, pyqtSignal, QMutex, QMutexLocker, QDir
 
 
 class SnapToGrid(QThread):
 
     run_finished = pyqtSignal(str, bool)
     run_progressed = pyqtSignal(str, int, int)
+    report_message = pyqtSignal(str, str)
 
-    def __init__(self, plugin, layer_id, snap_extent, grid_size, parent=None):
+    def __init__(self, plugin, grid_size, create_backup, backup_path, parent=None):
 
         super(SnapToGrid, self).__init__(parent)
         self.plugin = plugin
-        self.layer_id = layer_id
-        self.snap_extent = snap_extent
-        self.grid_size = grid_size
         self.stopped = False
         self.mutex = QMutex()
+        self.completed = False
+        self.layer_id = None
+        self.snap_extent = None
+        self.grid_size = grid_size
+        self.create_backup = create_backup
+        self.backup_path = backup_path
+
+    def initialize(self, layer_id, snap_extent):
+
+        self.layer_id = layer_id
+        self.snap_extent = snap_extent
+
+        self.stopped = False
         self.completed = False
 
     def run(self):
 
-        self.snap()
+        self.__snap()
         self.stop()
         self.run_finished.emit(self.layer_id, self.completed)
 
@@ -31,8 +43,9 @@ class SnapToGrid(QThread):
         with QMutexLocker(self.mutex):
             self.stopped = True
 
-    def snap(self):
+    def __snap(self):
 
+        self.report_message.emit(self.layer_id, 'preparing ...')
         orig_layer = QgsMapLayerRegistry.instance().mapLayer(self.layer_id)
         # create a copy of the layer just for editing
         layer = QgsVectorLayer(orig_layer.source(), orig_layer.name(), orig_layer.providerType())
@@ -40,6 +53,11 @@ class SnapToGrid(QThread):
         # layer.wkbType() does not return reliable results
         wkb_type = layer.wkbType()
 
+        if self.create_backup:
+            self.report_message.emit(self.layer_id, 'creating backup ...')
+            self.__create_backup_file(orig_layer)
+
+        self.report_message.emit(self.layer_id, 'preparing ...')
         layer.startEditing()
         request = QgsFeatureRequest().setFilterRect(self.snap_extent)
         total_features = 0
@@ -49,6 +67,8 @@ class SnapToGrid(QThread):
         QgsMessageLog.logMessage(self.plugin.tr('Features to be snapped in layer <{0}>: {1}').
                                  format(orig_layer.name(), total_features), self.plugin.tr('Vertex Tools'),
                                  QgsMessageLog.INFO)
+        if total_features == 0:
+            self.report_message.emit(self.layer_id, 'no features')
 
         count = 0
         for feature in layer.getFeatures(request):
@@ -65,11 +85,6 @@ class SnapToGrid(QThread):
                 snapped_geom = self.__polygon_grid(feature, wkb_type)
 
             layer.changeGeometry(feature.id(), snapped_geom)
-
-            # reduces memory usage but allows for partial rollbacks only
-            if count % 500 == 0:
-                layer.commitChanges()
-                layer.startEditing()
 
             count += 1
             self.run_progressed.emit(self.layer_id, count, total_features)
@@ -155,3 +170,12 @@ class SnapToGrid(QThread):
             snapped_points.append(QgsPoint(x, y))
 
         return snapped_points
+
+    def __create_backup_file(self, orig_layer):
+
+        file_name = self.backup_path + QDir.separator() + self.layer_id
+        error = QgsVectorFileWriter.writeAsVectorFormat(orig_layer, file_name, "utf-8", None, "ESRI Shapefile",
+                                                        False, None, list(), list(), True)
+        if error == QgsVectorFileWriter.NoError:
+            QgsMessageLog.logMessage(self.plugin.tr('Backup created.'), self.plugin.tr('Vertex Tools'),
+                                    QgsMessageLog.INFO)

@@ -5,5 +5,6 @@ SOURCES         += controller/SelectFeatureMapTool.py
 SOURCES         += controller/SnapToGridWidget.py
 SOURCES         += controller/VertexDialog.py
 SOURCES         += controller/SnapToGrid.py
-TRANSLATIONS    += i18n/vertex_tools_en.ts
+SOURCES         += controller/RestoreGeometry.py
+TRANSLATIONS    += i18n/vertex_tools_fr.ts
 TRANSLATIONS    += i18n/vertex_tools_de.ts
